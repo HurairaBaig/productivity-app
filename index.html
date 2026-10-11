@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Productivity App</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #6366f1;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --radius: 12px;
+      --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 8px rgba(79,70,229,.35);
+    }
+
+    header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    #clock {
+      font-size: .95rem;
+      opacity: .9;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Main Layout ── */
+    main {
+      flex: 1;
+      max-width: 720px;
+      width: 100%;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    /* ── Task Input ── */
+    .task-input {
+      display: flex;
+      gap: .5rem;
+    }
+
+    .task-input input {
+      flex: 1;
+      padding: .65rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: .95rem;
+      outline: none;
+      transition: border-color .2s;
+    }
+
+    .task-input input:focus {
+      border-color: var(--primary-light);
+    }
+
+    .task-input button {
+      padding: .65rem 1.25rem;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .2s;
+    }
+
+    .task-input button:hover { background: var(--primary-light); }
+
+    /* ── Task List ── */
+    #task-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: .5rem;
+      margin-top: 1rem;
+    }
+
+    #task-list li {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+      padding: .6rem .75rem;
+      border-radius: 8px;
+      background: var(--bg);
+      transition: background .15s;
+    }
+
+    #task-list li:hover { background: #eef2ff; }
+
+    #task-list li.done span { text-decoration: line-through; color: var(--text-muted); }
+
+    #task-list li input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      cursor: pointer;
+    }
+
+    #task-list li span { flex: 1; font-size: .95rem; }
+
+    #task-list li button {
+      background: none;
+      border: none;
+      color: var(--danger);
+      font-size: 1.1rem;
+      cursor: pointer;
+      opacity: .6;
+      transition: opacity .15s;
+    }
+
+    #task-list li button:hover { opacity: 1; }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 2rem 0;
+      font-size: .95rem;
+    }
+
+    /* ── Stats ── */
+    .stats {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .stat-box {
+      flex: 1;
+      text-align: center;
+      padding: 1rem;
+      background: var(--bg);
+      border-radius: 8px;
+    }
+
+    .stat-box .number {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-box .label {
+      font-size: .8rem;
+      color: var(--text-muted);
+      margin-top: .25rem;
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: .8rem;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>&#9889; Productivity App</h1>
+    <span id="clock"></span>
+  </header>
+
+  <main>
+    <!-- Stats -->
+    <section class="card">
+      <h2>Dashboard</h2>
+      <div class="stats">
+        <div class="stat-box">
+          <div class="number" id="stat-total">0</div>
+          <div class="label">Total Tasks</div>
+        </div>
+        <div class="stat-box">
+          <div class="number" id="stat-done">0</div>
+          <div class="label">Completed</div>
+        </div>
+        <div class="stat-box">
+          <div class="number" id="stat-pending">0</div>
+          <div class="label">Pending</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Add Task -->
+    <section class="card">
+      <h2>Add a Task</h2>
+      <div class="task-input">
+        <input id="new-task" type="text" placeholder="What do you need to do?" />
+        <button id="add-btn">Add</button>
+      </div>
+    </section>
+
+    <!-- Task List -->
+    <section class="card">
+      <h2>Tasks</h2>
+      <ul id="task-list"></ul>
+      <div class="empty-state" id="empty-msg">No tasks yet — add one above!</div>
+    </section>
+  </main>
+
+  <footer>&copy; 2026 Productivity App</footer>
+
+  <script>
+    // ── State ──
+    const STORAGE_KEY = 'productivity-app-tasks';
+
+    function loadTasks() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+      catch { return []; }
+    }
+
+    function saveTasks(tasks) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+    }
+
+    let tasks = loadTasks();
+
+    // ── DOM refs ──
+    const taskList  = document.getElementById('task-list');
+    const newTask   = document.getElementById('new-task');
+    const addBtn    = document.getElementById('add-btn');
+    const emptyMsg  = document.getElementById('empty-msg');
+    const statTotal = document.getElementById('stat-total');
+    const statDone  = document.getElementById('stat-done');
+    const statPend  = document.getElementById('stat-pending');
+    const clockEl   = document.getElementById('clock');
+
+    // ── Render ──
+    function render() {
+      taskList.innerHTML = '';
+      emptyMsg.style.display = tasks.length ? 'none' : 'block';
+
+      tasks.forEach((t, i) => {
+        const li = document.createElement('li');
+        if (t.done) li.classList.add('done');
+
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.checked = t.done;
+        cb.addEventListener('change', () => toggleTask(i));
+
+        const span = document.createElement('span');
+        span.textContent = t.text;
+
+        const del = document.createElement('button');
+        del.textContent = '✕';
+        del.title = 'Delete task';
+        del.addEventListener('click', () => removeTask(i));
+
+        li.append(cb, span, del);
+        taskList.appendChild(li);
+      });
+
+      // Update stats
+      const done = tasks.filter(t => t.done).length;
+      statTotal.textContent = tasks.length;
+      statDone.textContent  = done;
+      statPend.textContent  = tasks.length - done;
+    }
+
+    // ── Actions ──
+    function addTask() {
+      const text = newTask.value.trim();
+      if (!text) return;
+      tasks.push({ text, done: false });
+      newTask.value = '';
+      saveTasks(tasks);
+      render();
+    }
+
+    function toggleTask(index) {
+      tasks[index].done = !tasks[index].done;
+      saveTasks(tasks);
+      render();
+    }
+
+    function removeTask(index) {
+      tasks.splice(index, 1);
+      saveTasks(tasks);
+      render();
+    }
+
+    // ── Events ──
+    addBtn.addEventListener('click', addTask);
+    newTask.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') addTask();
+    });
+
+    // ── Clock ──
+    function updateClock() {
+      const now = new Date();
+      clockEl.textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ── Init ──
+    render();
+  </script>
+
+</body>
+</html>
